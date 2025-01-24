@@ -1,0 +1,430 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+
+/* Сброс стилей */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f8f9fa;
+  color: #212529;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+}
+
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background-color: #343a40;
+  color: white;
+}
+
+.header .logo a {
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+}
+
+.header .search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header .search-bar input {
+  padding: 10px;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  width: 300px;
+}
+
+.header .search-bar button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.header nav ul {
+  display: flex;
+  gap: 15px;
+}
+
+.header nav ul li a {
+  color: white;
+  font-size: 16px;
+  transition: color 0.3s ease;
+}
+
+.header nav ul li a:hover {
+  color: #007bff;
+}
+
+.hero-banner {
+  background: linear-gradient(to right, #007bff, #0056b3);
+  color: white;
+  text-align: center;
+  padding: 50px 20px;
+}
+
+.hero-banner h1 {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.hero-banner p {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.hero-banner .btn-primary {
+  font-size: 18px;
+  padding: 12px 20px;
+}
+
+.popular-toys, .categories, .reviews {
+  margin-top: 50px;
+}
+
+.categories .category-list {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.category-card {
+  background-color: white;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  text-align: center;
+  padding: 20px;
+  width: 200px;
+  transition: transform 0.3s ease;
+}
+
+.category-card:hover {
+  transform: scale(1.05);
+}
+
+.reviews .reviews-container {
+  display: flex;
+  gap: 20px;
+  justify-content: space-around;
+}
+
+.review-card {
+  background-color: #f8f9fa;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  padding: 20px;
+  width: 300px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.toy-card {
+  background-color: white;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  text-align: center;
+  padding: 20px;
+  width: 250px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.toy-card img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  margin-bottom: 15px;
+}
+
+.toy-card h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.toy-card p {
+  font-size: 16px;
+  margin-bottom: 15px;
+}
+
+.toy-card .btn-primary, .toy-card .btn-secondary {
+  font-size: 14px;
+  padding: 8px 12px;
+}
+
+.toy-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+
+.checkout-page {
+  background-color: white;
+  padding: 20px;
+  max-width: 600px;
+  margin: 20px auto;
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.checkout-page form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.checkout-page input, .checkout-page select {
+  padding: 10px;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  width: 100%;
+}
+
+.checkout-page button {
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.checkout-page button:hover {
+  background-color: #0056b3;
+}
+
+
+.cart {
+  padding: 20px;
+  max-width: 800px;
+  margin: 20px auto;
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 15px;
+  border-bottom: 1px solid #ced4da;
+}
+
+.cart-item img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+}
+
+.cart-item h3 {
+  font-size: 18px;
+}
+
+.cart-item button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.cart-item button:hover {
+  background-color: #c82333;
+}
+
+
+
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  padding: 20px;
+}
+
+.auth-form {
+  background-color: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 100%;
+}
+
+.auth-form h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #343a40;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #495057;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.auth-helper {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.auth-helper a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.auth-helper a:hover {
+  text-decoration: underline;
+}
+
+
+
+/* Стили для списка игрушек */
+.toy-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-around;
+}
+
+.toy-card {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  width: 250px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.toy-card img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.toy-card h3 {
+  font-size: 1.2rem;
+  margin-top: 10px;
+}
+
+.toy-card p {
+  font-size: 1rem;
+  margin-top: 5px;
+}
+
+.toy-card .btn {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 8px 16px;
+  background-color: #007BFF;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.toy-card .btn:hover {
+  background-color: #0056b3;
+}
