@@ -8,8 +8,8 @@ import (
 	"time"
 	"user-service/models"
 	"user-service/repositories"
-
 	"github.com/golang-jwt/jwt"
+	"user-service/mailer"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -24,6 +24,7 @@ func GetUsersHandler(w http.ResponseWriter, r *http.Request, ur *repositories.Us
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(users)
 }
+
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request, ur *repositories.UserRepository) {
 	var user models.User
@@ -46,6 +47,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request, ur *repositories.Us
 	}
 	user.Password = string(hashedPassword)
 
+	// Создание пользователя в базе данных
 	if err := ur.CreateUser(&user); err != nil {
 		http.Error(w, fmt.Sprintf("Failed to create user: %v", err), http.StatusInternalServerError)
 		return
@@ -58,6 +60,14 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request, ur *repositories.Us
 		return
 	}
 
+	// Отправка email уведомления пользователю
+	err = mailer.SendEmail(user.Email, "Регистрация успешна", "Добро пожаловать! Вы успешно зарегистрировались.")
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to send email: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// Отправляем успешный ответ
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]string{"token": token})
 }

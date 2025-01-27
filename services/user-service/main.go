@@ -6,8 +6,15 @@ import (
 	"net/http"
 	"db"
 	"user-service/handlers"
+	"github.com/joho/godotenv"
 	"user-service/repositories"
 )
+
+func init() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Error loading .env file")
+	}
+}
 
 func main() {
 	// Подключение к MongoDB

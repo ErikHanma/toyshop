@@ -5,6 +5,7 @@ go 1.23.5
 require (
 	db v0.0.0-00010101000000-000000000000
 	github.com/golang-jwt/jwt v3.2.2+incompatible
+	github.com/joho/godotenv v1.5.1
 	go.mongodb.org/mongo-driver v1.17.2
 	golang.org/x/crypto v0.32.0
 )
