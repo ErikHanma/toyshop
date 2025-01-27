@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	
+	"context"
+	"time"
 	"github.com/gorilla/mux"
-	"catalog-service/models"
-	"catalog-service/repositories"
+	"order-service/models"
+	"order-service/repositories"
 )
 
 // OrderHandler структура для обработчиков заказов.
@@ -27,7 +28,9 @@ func NewOrderHandler(orderRepository *repositories.OrderRepository) *OrderHandle
 
 // GetOrdersHandler обрабатывает HTTP-запросы GET на /orders для получения всех заказов.
 func (oh *OrderHandler) GetOrdersHandler(w http.ResponseWriter, r *http.Request) {
-	orders, err := oh.orderRepository.GetOrders()
+	ctx := r.Context()
+
+	orders, err := oh.orderRepository.GetOrders(ctx)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to get orders: %v", err), http.StatusInternalServerError)
 		return
@@ -43,8 +46,9 @@ func (oh *OrderHandler) GetOrdersHandler(w http.ResponseWriter, r *http.Request)
 func (oh *OrderHandler) GetOrderByIDHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	orderID := vars["id"]
+	ctx := r.Context();
 
-	order, err := oh.orderRepository.GetOrderByID(orderID)
+	order, err := oh.orderRepository.GetOrderByID(ctx, orderID)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to get order: %v", err), http.StatusInternalServerError)
 		return
@@ -56,6 +60,17 @@ func (oh *OrderHandler) GetOrderByIDHandler(w http.ResponseWriter, r *http.Reque
 	}
 }
 
+func checkProductExists(productID string) (bool, error) {
+	catalogServiceURL := fmt.Sprintf("http://localhost:8081/products/%s", productID) // Замени на адрес catalog-service
+	resp, err := http.Get(catalogServiceURL)
+	if err != nil {
+		return false, err
+	}
+	defer resp.Body.Close()
+
+	return resp.StatusCode == http.StatusOK, nil
+}
+
 // CreateOrderHandler обрабатывает HTTP-запросы POST на /orders для создания нового заказа.
 func (oh *OrderHandler) CreateOrderHandler(w http.ResponseWriter, r *http.Request) {
 	var order models.Order
@@ -64,7 +79,26 @@ func (oh *OrderHandler) CreateOrderHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if err := oh.orderRepository.CreateOrder(&order); err != nil {
+	for _, item := range order.Items {
+	// Проверяем, существует ли товар с таким ID в catalog-service
+	productExists, err := checkProductExists(item.ProductID) 
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to check product existence: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+		if !productExists {
+			http.Error(w, fmt.Sprintf("Product with ID %s not found", item.ProductID), http.StatusBadRequest)
+			return
+		}
+	}
+
+	// Создаем контекст с таймаутом
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// Передаем контекст в CreateOrder
+	if err := oh.orderRepository.CreateOrder(ctx, &order); err != nil {
 		http.Error(w, fmt.Sprintf("Failed to create order: %v", err), http.StatusInternalServerError)
 		return
 	}
@@ -77,6 +111,7 @@ func (oh *OrderHandler) CreateOrderHandler(w http.ResponseWriter, r *http.Reques
 func (oh *OrderHandler) UpdateOrderHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	orderID := vars["id"]
+	ctx := r.Context()
 
 	var order models.Order
 	if err := json.NewDecoder(r.Body).Decode(&order); err != nil {
@@ -84,7 +119,7 @@ func (oh *OrderHandler) UpdateOrderHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if err := oh.orderRepository.UpdateOrder(orderID, &order); err != nil {
+	if err := oh.orderRepository.UpdateOrder(ctx, orderID, &order); err != nil {
 		http.Error(w, fmt.Sprintf("Failed to update order: %v", err), http.StatusInternalServerError)
 		return
 	}
@@ -96,8 +131,9 @@ func (oh *OrderHandler) UpdateOrderHandler(w http.ResponseWriter, r *http.Reques
 func (oh *OrderHandler) DeleteOrderHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	orderID := vars["id"]
+	ctx := r.Context()
 
-	if err := oh.orderRepository.DeleteOrder(orderID); err != nil {
+	if err := oh.orderRepository.DeleteOrder(ctx, orderID); err != nil {
 		http.Error(w, fmt.Sprintf("Failed to delete order: %v", err), http.StatusInternalServerError)
 		return
 	}

@@ -1,10 +1,12 @@
 package models
 
-// Product represents a product in the toyshop.
+import "go.mongodb.org/mongo-driver/bson/primitive"
+
+
 type Product struct {
-	ID          string   `bson:"_id,omitempty"`
-	Name        string   `bson:"name"`
-	Description string   `bson:"description"`
-	Price       float64  `bson:"price"`
-	Categories  []string `bson:"categories"`
+	ID          primitive.ObjectID `bson:"_id,omitempty"`
+	Name        string             `bson:"name"`
+	Description string             `bson:"description"`
+	Price       float64            `bson:"price"`
+	Categories  []string           `bson:"categories"`
 }

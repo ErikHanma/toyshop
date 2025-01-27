@@ -2,84 +2,93 @@ package repositories
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
+	"user-service/models"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	"user-service/models"
 	"golang.org/x/crypto/bcrypt"
-	"fmt"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// Структура репозитория пользователей
 type UserRepository struct {
-	client *mongo.Client
+	collection *mongo.Collection
 }
 
-// Конструктор репозитория
+// NewUserRepository создаёт новый экземпляр UserRepository.
 func NewUserRepository(client *mongo.Client) *UserRepository {
-	return &UserRepository{client: client}
+	return &UserRepository{
+		collection: client.Database("toyshop").Collection("users"),
+	}
 }
 
-type User struct {
-	ID       string `bson:"_id,omitempty"`
-	Username string `bson:"username"`
-	Email    string `bson:"email"`
-}
-
-// CreateUser создает нового пользователя с хешированным паролем.
+// CreateUser добавляет нового пользователя с хешированным паролем.
 func (ur *UserRepository) CreateUser(user *models.User) error {
-    // Хеширование пароля
-    hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-    if err != nil {
-        return fmt.Errorf("failed to hash password: %w", err)
-    }
-    user.Password = string(hashedPassword)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return fmt.Errorf("failed to hash password: %w", err)
+	}
+	user.Password = string(hashedPassword)
 
-    collection := ur.client.Database("toyshop").Collection("users")
-    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-    defer cancel()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-    _, err = collection.InsertOne(ctx, user)
-    return err
+	_, err = ur.collection.InsertOne(ctx, user)
+	return err
 }
 
+// GetUsers возвращает всех пользователей.
 func (ur *UserRepository) GetUsers() ([]models.User, error) {
-    collection := ur.client.Database("toyshop").Collection("users")
-    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-    defer cancel()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-    cursor, err := collection.Find(ctx, bson.M{})
-    if err != nil {
-        log.Printf("Error fetching users: %v", err)
-        return nil, err
-    }
-    defer cursor.Close(ctx)
+	cursor, err := ur.collection.Find(ctx, bson.M{})
+	if err != nil {
+		log.Printf("Error fetching users: %v", err)
+		return nil, err
+	}
+	defer cursor.Close(ctx)
 
-    var users []models.User
-    for cursor.Next(ctx) {
-        var user models.User
-        if err := cursor.Decode(&user); err != nil {
-            log.Printf("Error decoding user: %v", err)
-            return nil, err
-        }
-        users = append(users, user)
-    }
-    return users, nil
+	var users []models.User
+	if err = cursor.All(ctx, &users); err != nil {
+		log.Printf("Error decoding users: %v", err)
+		return nil, err
+	}
+
+	return users, nil
 }
 
-// GetUserByUsername получает пользователя по имени пользователя.
+// GetUserByUsername возвращает пользователя по имени.
 func (ur *UserRepository) GetUserByUsername(username string) (*models.User, error) {
-	collection := ur.client.Database("toyshop").Collection("users")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var user models.User
-	err := collection.FindOne(ctx, bson.M{"username": username}).Decode(&user)
+	err := ur.collection.FindOne(ctx, bson.M{"username": username}).Decode(&user)
 	if err != nil {
 		return nil, err
 	}
 	return &user, nil
 }
 
+
+// В user_repository.go добавим функцию GetUserByID
+func (ur *UserRepository) GetUserByID(id string) (*models.User, error) {
+	// Преобразуем строку ID в ObjectId
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, fmt.Errorf("invalid ID format: %v", err)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var user models.User
+	err = ur.collection.FindOne(ctx, bson.M{"_id": objectID}).Decode(&user)
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}

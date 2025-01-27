@@ -106,3 +106,25 @@ func LoginHandler(w http.ResponseWriter, r *http.Request, ur *repositories.UserR
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"token": tokenString})
 }
+
+
+// Новый обработчик для поиска пользователя по ID
+func GetUserByIDHandler(w http.ResponseWriter, r *http.Request, ur *repositories.UserRepository) {
+	// Получаем ID из URL
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		http.Error(w, "ID is required", http.StatusBadRequest)
+		return
+	}
+
+	// Ищем пользователя по ID
+	user, err := ur.GetUserByID(id)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to fetch user: %v", err), http.StatusNotFound)
+		return
+	}
+
+	// Отправляем данные пользователя
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(user)
+}

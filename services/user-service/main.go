@@ -34,6 +34,11 @@ func main() {
 	http.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 		handlers.LoginHandler(w, r, userRepository) // Регистрация обработчика аутентификации
 	})
+	// Новый маршрут для поиска пользователя по ID
+	http.HandleFunc("/user", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetUserByIDHandler(w, r, userRepository) // Обработчик для поиска по ID
+	})
+
 
 	// Запуск сервера
 	log.Println("User Service running on port 8083")

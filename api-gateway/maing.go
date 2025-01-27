@@ -14,7 +14,7 @@ func main() {
 	router := mux.NewRouter()
 
 	// Маршрутизация для catalog-service
-	catalogServiceURL, err := url.Parse("http://localhost:8081") // Замени на адрес и порт catalog-service
+	catalogServiceURL, err := url.Parse("http://localhost:8081")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -26,7 +26,7 @@ func main() {
 	router.HandleFunc("/products/{id}", proxyRequestHandler(catalogServiceProxy)).Methods(http.MethodDelete)
 
 	// Маршрутизация для user-service
-	userServiceURL, err := url.Parse("http://localhost:8082") // Замени на адрес и порт user-service
+	userServiceURL, err := url.Parse("http://localhost:8082")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -34,11 +34,10 @@ func main() {
 	router.HandleFunc("/users", proxyRequestHandler(userServiceProxy)).Methods(http.MethodGet)
 	router.HandleFunc("/register", proxyRequestHandler(userServiceProxy)).Methods(http.MethodPost)
 	router.HandleFunc("/login", proxyRequestHandler(userServiceProxy)).Methods(http.MethodGet)
-	// Добавь другие маршруты для user-service по аналогии с catalog-service
 
 
 	// Маршрутизация для order-service
-	orderServiceURL, err := url.Parse("http://localhost:8083") // Замени на адрес и порт order-service
+	orderServiceURL, err := url.Parse("http://localhost:8083")
 	if err != nil {
 		log.Fatal(err)
 	}

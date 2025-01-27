@@ -10,13 +10,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"order-service/handlers"  // Замени на путь к твоим обработчикам
-	"order-service/repositories" // Замени на путь к твоим репозиториям
+	"order-service/handlers"
+	"order-service/repositories"
 )
 
 func main() {
 	// Подключение к MongoDB
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017") // Замени на свой URL
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
 	client, err := mongo.Connect(context.Background(), clientOptions)
 	if err != nil {
 		log.Fatal(err)
@@ -30,16 +30,17 @@ func main() {
 	// Инициализация репозитория заказов
 	orderRepository := repositories.NewOrderRepository(client)
 
+	orderHandler := handlers.NewOrderHandler(orderRepository)
+
 	// Создание роутера
 	router := mux.NewRouter()
 
 	// Маршруты для order-service
 	router.HandleFunc("/orders", func(w http.ResponseWriter, r *http.Request) {
-		handlers.GetOrdersHandler(w, r, orderRepository)
+		orderHandler.GetOrdersHandler(w, r)
 	}).Methods(http.MethodGet)
-	// ... (добавь другие маршруты для создания, получения по ID, обновления и удаления заказов)
 
 	// Запуск сервера
-	fmt.Println("Order Service listening on port 8083") // Выбери свободный порт
-	log.Fatal(http.ListenAndServe(":8083", router))
+	fmt.Println("Order Service listening on port 8082") // Выбери свободный порт
+	log.Fatal(http.ListenAndServe(":8082", router))
 }

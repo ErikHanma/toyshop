@@ -3,30 +3,28 @@ package repositories
 import (
 	"context"
 	"fmt"
+	"order-service/models"
 	// "time"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"catalog-service/models"
-	// "order-service/models"
 )
 
-
-// OrderRepository структура для взаимодействия с коллекцией заказов.
 type OrderRepository struct {
-	client *mongo.Client
+	collection *mongo.Collection
 }
 
-// NewOrderRepository создает новый OrderRepository.
+// NewOrderRepository создаёт новый экземпляр OrderRepository.
 func NewOrderRepository(client *mongo.Client) *OrderRepository {
-	return &OrderRepository{client: client}
+	return &OrderRepository{
+		collection: client.Database("toyshop").Collection("orders"),
+	}
 }
 
-// GetOrders получает все заказы.
+// GetOrders возвращает все заказы.
 func (or *OrderRepository) GetOrders(ctx context.Context) ([]models.Order, error) {
-	collection := or.client.Database("toyshop").Collection("orders")
-
-	cursor, err := collection.Find(ctx, bson.M{})
+	cursor, err := or.collection.Find(ctx, bson.M{})
 	if err != nil {
 		return nil, err
 	}
@@ -40,17 +38,15 @@ func (or *OrderRepository) GetOrders(ctx context.Context) ([]models.Order, error
 	return orders, nil
 }
 
-// GetOrderByID получает заказ по ID.
+// GetOrderByID возвращает заказ по его ID.
 func (or *OrderRepository) GetOrderByID(ctx context.Context, orderID string) (*models.Order, error) {
-	collection := or.client.Database("toyshop").Collection("orders")
-
-	objID, err := primitive.ObjectIDFromHex(orderID) 
+	objID, err := primitive.ObjectIDFromHex(orderID)
 	if err != nil {
 		return nil, err
 	}
 
 	var order models.Order
-	err = collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&order)
+	err = or.collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&order)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return nil, fmt.Errorf("order not found")
@@ -60,52 +56,35 @@ func (or *OrderRepository) GetOrderByID(ctx context.Context, orderID string) (*m
 	return &order, nil
 }
 
-// CreateOrder создает новый заказ.
+// CreateOrder добавляет новый заказ.
 func (or *OrderRepository) CreateOrder(ctx context.Context, order *models.Order) error {
-	collection := or.client.Database("toyshop").Collection("orders")
-
-	result, err := collection.InsertOne(ctx, order)
+	result, err := or.collection.InsertOne(ctx, order)
 	if err != nil {
 		return err
 	}
-
-	// Обновляем ID заказа сгенерированным MongoDB ID
 	order.ID = result.InsertedID.(primitive.ObjectID).Hex()
 	return nil
 }
 
-// UpdateOrder обновляет существующий заказ.
+// UpdateOrder обновляет заказ.
 func (or *OrderRepository) UpdateOrder(ctx context.Context, orderID string, order *models.Order) error {
-	collection := or.client.Database("toyshop").Collection("orders")
-
 	objID, err := primitive.ObjectIDFromHex(orderID)
 	if err != nil {
 		return err
 	}
 
-	update := bson.M{
-		"$set": order,
-	}
-
-	_, err = collection.UpdateOne(ctx, bson.M{"_id": objID}, update)
-	if err != nil {
-		return err
-	}
-	return nil
+	update := bson.M{"$set": order}
+	_, err = or.collection.UpdateOne(ctx, bson.M{"_id": objID}, update)
+	return err
 }
 
-// DeleteOrder удаляет заказ по ID.
+// DeleteOrder удаляет заказ.
 func (or *OrderRepository) DeleteOrder(ctx context.Context, orderID string) error {
-	collection := or.client.Database("toyshop").Collection("orders")
-
 	objID, err := primitive.ObjectIDFromHex(orderID)
 	if err != nil {
 		return err
 	}
 
-	_, err = collection.DeleteOne(ctx, bson.M{"_id": objID})
-	if err != nil {
-		return err
-	}
-	return nil
+	_, err = or.collection.DeleteOne(ctx, bson.M{"_id": objID})
+	return err
 }

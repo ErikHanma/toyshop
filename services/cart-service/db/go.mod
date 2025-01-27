@@ -1,12 +1,8 @@
-module order.mod
+module db
 
 go 1.23.5
 
-require (
-	github.com/gorilla/mux v1.8.1
-	go.mongodb.org/mongo-driver v1.17.2
-	order-service v0.0.0-00010101000000-000000000000
-)
+require go.mongodb.org/mongo-driver v1.17.2
 
 require (
 	github.com/golang/snappy v0.0.4 // indirect
@@ -20,11 +16,3 @@ require (
 	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/text v0.17.0 // indirect
 )
-
-replace db => ./db
-
-// replace order-service => ./../order-service
-
-replace catalog-service => ../catalog-service
-
-replace order-service => ../order-service

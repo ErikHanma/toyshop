@@ -8,25 +8,26 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// ProductRepository struct for interacting with the products collection.
 type ProductRepository struct {
-	client *mongo.Client
+	collection *mongo.Collection
 }
 
-// NewProductRepository creates a new ProductRepository.
+// NewProductRepository создаёт новый экземпляр ProductRepository.
 func NewProductRepository(client *mongo.Client) *ProductRepository {
-	return &ProductRepository{client: client}
+	return &ProductRepository{
+		collection: client.Database("toyshop").Collection("products"),
+	}
 }
 
-// GetProducts retrieves all products from the database.
+// GetProducts возвращает все продукты из коллекции.
 func (pr *ProductRepository) GetProducts() ([]models.Product, error) {
-	collection := pr.client.Database("toyshop").Collection("products")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	cursor, err := collection.Find(ctx, bson.M{})
+	cursor, err := pr.collection.Find(ctx, bson.M{})
 	if err != nil {
 		return nil, err
 	}
@@ -34,34 +35,28 @@ func (pr *ProductRepository) GetProducts() ([]models.Product, error) {
 
 	var products []models.Product
 	if err = cursor.All(ctx, &products); err != nil {
-		return nil, err 
+		return nil, err
 	}
 
 	return products, nil
 }
 
-// ... other functions for product operations (create, update, delete) 
-// CreateProduct добавляет новый продукт в базу данных.
+// CreateProduct добавляет новый продукт.
 func (pr *ProductRepository) CreateProduct(product *models.Product) error {
-	collection := pr.client.Database("toyshop").Collection("products")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_, err := collection.InsertOne(ctx, product)
-	if err != nil {
-		return err
-	}
-	return nil
+	_, err := pr.collection.InsertOne(ctx, product)
+	return err
 }
 
-// GetProductByID получает продукт из базы данных по его ID.
-func (pr *ProductRepository) GetProductByID(id string) (*models.Product, error) {
-	collection := pr.client.Database("toyshop").Collection("products")
+// GetProductByID получает продукт по его ID.
+func (pr *ProductRepository) GetProductByID(id primitive.ObjectID) (*models.Product, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var product models.Product
-	err := collection.FindOne(ctx, bson.M{"_id": id}).Decode(&product)
+	err := pr.collection.FindOne(ctx, bson.M{"_id": id}).Decode(&product)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return nil, fmt.Errorf("product not found")
@@ -71,34 +66,21 @@ func (pr *ProductRepository) GetProductByID(id string) (*models.Product, error) 
 	return &product, nil
 }
 
-
-// UpdateProduct обновляет существующий продукт в базе данных.
-func (pr *ProductRepository) UpdateProduct(id string, product *models.Product) error {
-	collection := pr.client.Database("toyshop").Collection("products")
+// UpdateProduct обновляет продукт.
+func (pr *ProductRepository) UpdateProduct(id primitive.ObjectID, product *models.Product) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	update := bson.M{
-		"$set": product,
-	}
-
-	_, err := collection.UpdateOne(ctx, bson.M{"_id": id}, update)
-	if err != nil {
-		return err
-	}
-	return nil
+	update := bson.M{"$set": product}
+	_, err := pr.collection.UpdateOne(ctx, bson.M{"_id": id}, update)
+	return err
 }
 
-
-// DeleteProduct удаляет продукт из базы данных по его ID.
-func (pr *ProductRepository) DeleteProduct(id string) error {
-	collection := pr.client.Database("toyshop").Collection("products")
+// DeleteProduct удаляет продукт по его ID.
+func (pr *ProductRepository) DeleteProduct(id primitive.ObjectID) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_, err := collection.DeleteOne(ctx, bson.M{"_id": id})
-	if err != nil {
-		return err
-	}
-	return nil
+	_, err := pr.collection.DeleteOne(ctx, bson.M{"_id": id})
+	return err
 }
