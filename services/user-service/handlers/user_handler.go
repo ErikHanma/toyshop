@@ -15,7 +15,7 @@ import (
 
 // Обновленный обработчик получения пользователей
 func GetUsersHandler(w http.ResponseWriter, r *http.Request, ur *repositories.UserRepository) { 
-	users, err := ur.GetUsers() // Вызываем GetUsers у userRepository
+	users, err := ur.GetUsers()
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to fetch users: %v", err), http.StatusInternalServerError)
 		return
@@ -81,7 +81,7 @@ func generateJWT(username string) (string, error) {
 	// Создание токена
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": username,
-		"exp":     time.Now().Add(time.Hour * 24).Unix(), // Время истечения - 24 часа
+		"exp":     time.Now().Add(time.Hour * 24).Unix(),
 	})
 
 	// Подпись токена секретным ключом

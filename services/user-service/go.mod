@@ -1,4 +1,5 @@
-module user-service
+// module user-service
+module github.com/ErikHanma/toyshop/services/user-service
 
 go 1.23.5
 

@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
+	"db"
 	"log"
 	"net/http"
-	"db"
 	"user-service/handlers"
-	"github.com/joho/godotenv"
 	"user-service/repositories"
+	"github.com/joho/godotenv"
 )
 
 func init() {
@@ -45,7 +45,6 @@ func main() {
 	http.HandleFunc("/user", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetUserByIDHandler(w, r, userRepository) // Обработчик для поиска по ID
 	})
-
 
 	// Запуск сервера
 	log.Println("User Service running on port 8083")
