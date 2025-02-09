@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
-	"db"
+	database "database"
 	"log"
 	"net/http"
-	"user-service/handlers"
-	"user-service/repositories"
+
+	"github.com/ErikHanma/toyshop/services/user-service/handlers"
+	"github.com/ErikHanma/toyshop/services/user-service/repositories"
+
 	"github.com/joho/godotenv"
 )
 
@@ -18,7 +20,7 @@ func init() {
 
 func main() {
 	// Подключение к MongoDB
-	client, err := db.NewMongoClient("mongodb://localhost:27017")
+	client, err := database.NewMongoClient("mongodb://localhost:27017")
 	if err != nil {
 		log.Fatal(err)
 	}

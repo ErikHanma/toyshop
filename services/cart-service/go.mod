@@ -3,7 +3,7 @@ module cart-service
 go 1.23.5
 
 require (
-	db v0.0.0-00010101000000-000000000000
+	database v0.0.0-00010101000000-000000000000
 	github.com/gorilla/mux v1.8.1
 	go.mongodb.org/mongo-driver v1.17.2
 )
@@ -21,4 +21,6 @@ require (
 	golang.org/x/text v0.17.0 // indirect
 )
 
-replace db => ./db
+replace database => ../../database
+
+// replace common-models => ../../common

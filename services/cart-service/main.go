@@ -2,19 +2,20 @@ package main
 
 import (
 	"cart-service/handlers"
-	"cart-service/repository"
+	repository "cart-service/repository"
 	"context"
 	"log"
-	"db"
+	database "database"
 	"net/http"
+
 	"github.com/gorilla/mux"
 )
 
 func main() {
 	// Подключение к MongoDB
-	db.ConnectMongoDB()
+	database.ConnectMongoDB()
 
-	client := db.MongoClient
+	client := database.MongoClient
 
 	defer func() {
 		if err := client.Disconnect(context.Background()); err != nil {
@@ -23,7 +24,7 @@ func main() {
 	}()
 
 	// Инициализация репозитория
-	cartRepository := repositories.NewCartRepository(client)
+	cartRepository := repository.NewCartRepository(client)
 
 	// Роуты
 	router := mux.NewRouter()

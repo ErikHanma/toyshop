@@ -13,48 +13,49 @@ import (
 func main() {
 	router := mux.NewRouter()
 
-	// Маршрутизация для catalog-service
-	catalogServiceURL, err := url.Parse("http://localhost:8081")
-	if err != nil {
-		log.Fatal(err)
-	}
-	catalogServiceProxy := httputil.NewSingleHostReverseProxy(catalogServiceURL)
-	router.HandleFunc("/products", proxyRequestHandler(catalogServiceProxy)).Methods(http.MethodGet)
-	router.HandleFunc("/products", proxyRequestHandler(catalogServiceProxy)).Methods(http.MethodPost)
-	router.HandleFunc("/products/{id}", proxyRequestHandler(catalogServiceProxy)).Methods(http.MethodGet)
-	router.HandleFunc("/products/{id}", proxyRequestHandler(catalogServiceProxy)).Methods(http.MethodPut)
-	router.HandleFunc("/products/{id}", proxyRequestHandler(catalogServiceProxy)).Methods(http.MethodDelete)
+	// Define service URLs
+	catalogServiceURL := mustParseURL("http://localhost:8081")
+	userServiceURL := mustParseURL("http://localhost:8082")
+	orderServiceURL := mustParseURL("http://localhost:8083")
 
-	// Маршрутизация для user-service
-	userServiceURL, err := url.Parse("http://localhost:8082")
-	if err != nil {
-		log.Fatal(err)
-	}
-	userServiceProxy := httputil.NewSingleHostReverseProxy(userServiceURL)
+	// Set up reverse proxies
+	catalogServiceProxy := createReverseProxy(catalogServiceURL)
+	userServiceProxy := createReverseProxy(userServiceURL)
+	orderServiceProxy := createReverseProxy(orderServiceURL)
+
+	// Route definitions
+	router.HandleFunc("/products", proxyRequestHandler(catalogServiceProxy)).Methods(http.MethodGet, http.MethodPost)
+	router.HandleFunc("/products/{id}", proxyRequestHandler(catalogServiceProxy)).Methods(http.MethodGet, http.MethodPut, http.MethodDelete)
+
 	router.HandleFunc("/users", proxyRequestHandler(userServiceProxy)).Methods(http.MethodGet)
 	router.HandleFunc("/register", proxyRequestHandler(userServiceProxy)).Methods(http.MethodPost)
 	router.HandleFunc("/login", proxyRequestHandler(userServiceProxy)).Methods(http.MethodGet)
 
-
-	// Маршрутизация для order-service
-	orderServiceURL, err := url.Parse("http://localhost:8083")
-	if err != nil {
-		log.Fatal(err)
-	}
-	orderServiceProxy := httputil.NewSingleHostReverseProxy(orderServiceURL)
 	router.HandleFunc("/orders", proxyRequestHandler(orderServiceProxy)).Methods(http.MethodGet)
-	// ... (добавь другие маршруты для создания, получения по ID, обновления и удаления заказов)
 
-	// Запуск сервера API Gateway
+	// Start the API Gateway server
 	fmt.Println("API Gateway listening on port 8000")
 	log.Fatal(http.ListenAndServe(":8000", router))
 }
 
-// Функция-обработчик для проксирования запросов
+// Helper function to parse URLs and handle errors
+func mustParseURL(rawURL string) *url.URL {
+	parsedURL, err := url.Parse(rawURL)
+	if err != nil {
+		log.Fatalf("Failed to parse URL: %v", err)
+	}
+	return parsedURL
+}
+
+// Helper function to create a reverse proxy
+func createReverseProxy(target *url.URL) *httputil.ReverseProxy {
+	return httputil.NewSingleHostReverseProxy(target)
+}
+
+// Request handler for proxying requests
 func proxyRequestHandler(target *httputil.ReverseProxy) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Proxying request to: %s\n", r.URL)
 		target.ServeHTTP(w, r)
 	}
 }
-

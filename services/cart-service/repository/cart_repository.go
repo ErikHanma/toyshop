@@ -56,6 +56,7 @@ func (cr *CartRepository) UpdateCart(cartID primitive.ObjectID, updatedCart *mod
 	return err
 }
 
+
 // DeleteCart удаляет корзину по ее ID.
 func (cr *CartRepository) DeleteCart(cartID primitive.ObjectID) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

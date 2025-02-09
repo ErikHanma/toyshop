@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"os"
 	"time"
-	"user-service/models"
-	"user-service/repositories"
+	"github.com/ErikHanma/toyshop/services/user-service/models"
+	"github.com/ErikHanma/toyshop/services/user-service/repositories"
 	"github.com/golang-jwt/jwt"
-	"user-service/mailer"
+	"github.com/ErikHanma/toyshop/services/user-service/mailer"
 	"golang.org/x/crypto/bcrypt"
 )
 

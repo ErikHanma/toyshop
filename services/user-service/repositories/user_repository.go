@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 	"time"
-	"user-service/models"
+	"github.com/ErikHanma/toyshop/services/user-service/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/crypto/bcrypt"

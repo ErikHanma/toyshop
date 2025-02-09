@@ -4,7 +4,7 @@ import (
 	"catalog-service/handlers"
 	"catalog-service/repositories"
 	"context"
-	db "database"
+	database "database"
 	"log"
 	"net/http"
 
@@ -13,9 +13,9 @@ import (
 
 func main() {
 	// Подключение к MongoDB
-	db.ConnectMongoDB()
+	database.ConnectMongoDB()
 
-	client := db.MongoClient
+	client := database.MongoClient
 
 	defer func() {
 		if err := client.Disconnect(context.Background()); err != nil {
@@ -46,5 +46,5 @@ func main() {
 
 	// Запуск сервера
 	log.Println("Catalog Service running on port 8081")
-	log.Fatal(http.ListenAndServe(":8081", router)) // <- Используем router
+	log.Fatal(http.ListenAndServe(":8081", router))
 }

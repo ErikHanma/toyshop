@@ -21,4 +21,4 @@ require (
 	golang.org/x/text v0.17.0 // indirect
 )
 
-replace database => ./db
+replace database => ../../database
